@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=KWhatsTux
+GenericName=WhatsApp Web Client
+Comment=Access WhatsApp Web from your desktop
+Exec=kwhatstux
+Icon=kwhatstux
+Terminal=false
+Categories=Qt;KDE;Network;InstantMessaging;
+StartupWMClass=kwhatstux
+X-DBUS-ServiceName=org.kde.kwhatstux

@@ -1,0 +1,9 @@
+[Global]
+IconName=kwhatstux
+Name=KWhatsTux
+Comment=WhatsApp Web Client
+
+[Event/webNotification]
+Name=Web Notification
+Comment=Notification from WhatsApp Web
+Action=Popup
