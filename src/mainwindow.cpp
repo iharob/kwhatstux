@@ -164,10 +164,10 @@ void MainWindow::setupTrayIcon()
 {
     m_trayIcon = new KStatusNotifierItem(this);
     m_trayIcon->setCategory(KStatusNotifierItem::Communications);
-    if (QIcon::hasThemeIcon(QStringLiteral("kwhatstux")))
-        m_trayIcon->setIconByName(QStringLiteral("kwhatstux"));
+    if (QIcon::hasThemeIcon(QStringLiteral("kwhatstux-tray")))
+        m_trayIcon->setIconByName(QStringLiteral("kwhatstux-tray"));
     else
-        m_trayIcon->setIconByName(QStringLiteral("internet-chat"));
+        m_trayIcon->setIconByName(QStringLiteral("kwhatstux"));
     m_trayIcon->setStandardActionsEnabled(true);
     m_trayIcon->setToolTipTitle(i18n("KWhatsTux"));
     m_trayIcon->setToolTipSubTitle(i18n("WhatsApp Web Client"));

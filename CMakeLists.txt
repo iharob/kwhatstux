@@ -32,7 +32,11 @@ find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS
 
 add_subdirectory(src)
 
-ecm_install_icons(ICONS icons/sc-apps-kwhatstux.svg DESTINATION ${KDE_INSTALL_ICONDIR})
+ecm_install_icons(ICONS
+    icons/sc-apps-kwhatstux.svg
+    icons/sc-status-kwhatstux-tray.svg
+    DESTINATION ${KDE_INSTALL_ICONDIR}
+)
 
 install(FILES org.kde.kwhatstux.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES kwhatstux.notifyrc DESTINATION ${KDE_INSTALL_KNOTIFYRCDIR})
