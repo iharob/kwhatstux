@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/iharob/kwhatstux/compare/v1.2.0...v1.2.1) (2026-05-28)
+
+
+### Bug Fixes
+
+* simpler tray dot, autoplay WhatsApp notification sound ([8db2c99](https://github.com/iharob/kwhatstux/commit/8db2c9926f2de96393b7c10a66d59fa09f17c6af))
+
 ## [1.2.0](https://github.com/iharob/kwhatstux/compare/v1.1.0...v1.2.0) (2026-05-28)
 
 
