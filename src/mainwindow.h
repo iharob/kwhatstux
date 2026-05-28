@@ -31,6 +31,7 @@ private:
     void handlePermission(QWebEnginePermission permission);
     void handleNotification(std::unique_ptr<QWebEngineNotification> notification);
     void updateTabTitle(int index, const QString &title);
+    void updateTrayBadge();
     void renameTab(int index);
     void saveAccountCount();
     void saveTabOrder();

@@ -5,6 +5,7 @@
 #include <QInputDialog>
 #include <QMenuBar>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QToolButton>
@@ -67,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
         delete w;
         saveAccountCount();
         saveTabOrder();
+        updateTrayBadge();
     });
 
     connect(m_tabs->tabBar(), &QTabBar::tabMoved, this, [this]() {
@@ -195,26 +197,27 @@ void MainWindow::handlePermission(QWebEnginePermission permission)
 
 void MainWindow::handleNotification(std::unique_ptr<QWebEngineNotification> webNotification)
 {
-    auto *knotify = new KNotification(QStringLiteral("webNotification"),
-                                       KNotification::CloseOnTimeout, this);
-    knotify->setTitle(webNotification->title());
-    knotify->setText(webNotification->message());
+    std::shared_ptr<QWebEngineNotification> notification(webNotification.release());
 
-    const auto icon = webNotification->icon();
+    auto *knotify = new KNotification(QStringLiteral("webNotification"),
+                                       KNotification::Persistent, this);
+    knotify->setTitle(notification->title().toHtmlEscaped());
+    knotify->setText(notification->message().toHtmlEscaped());
+
+    const auto icon = notification->icon();
     if (!icon.isNull())
         knotify->setPixmap(QPixmap::fromImage(icon));
 
-    auto *raw = webNotification.release();
-
     auto *defaultAction = knotify->addDefaultAction(i18n("Open"));
-    connect(defaultAction, &KNotificationAction::activated, this, [this, raw]() {
-        raw->click();
+    connect(defaultAction, &KNotificationAction::activated, this, [this, notification]() {
+        notification->click();
         show();
         raise();
         activateWindow();
     });
-    connect(knotify, &KNotification::closed, raw, &QWebEngineNotification::close);
-    connect(raw, &QWebEngineNotification::closed, knotify, &KNotification::close);
+    connect(knotify, &KNotification::closed, this, [notification]() {
+        notification->close();
+    });
 
     knotify->sendEvent();
 }
@@ -228,13 +231,59 @@ void MainWindow::updateTabTitle(int index, const QString &title)
     QString customName = config.readEntry(QStringLiteral("name-%1").arg(num), QString());
     QString label = customName.isEmpty() ? i18n("Account %1", num) : customName;
 
+    int unread = 0;
     if (title.startsWith(QLatin1Char('('))) {
         int close = title.indexOf(QLatin1Char(')'));
-        if (close > 0)
+        if (close > 0) {
+            bool ok = false;
+            int n = title.mid(1, close - 1).toInt(&ok);
+            if (ok)
+                unread = n;
             label = title.left(close + 1) + QLatin1Char(' ') + label;
+        }
     }
 
+    widget->setProperty("unreadCount", unread);
     m_tabs->setTabText(index, label);
+    updateTrayBadge();
+}
+
+void MainWindow::updateTrayBadge()
+{
+    if (!m_trayIcon)
+        return;
+
+    int total = 0;
+    for (int i = 0; i < m_tabs->count(); ++i)
+        total += m_tabs->widget(i)->property("unreadCount").toInt();
+
+    if (total == 0) {
+        m_trayIcon->setOverlayIconByName(QString());
+        m_trayIcon->setStatus(KStatusNotifierItem::Active);
+        m_trayIcon->setToolTipSubTitle(i18n("WhatsApp Web Client"));
+        return;
+    }
+
+    const int size = 22;
+    QPixmap pixmap(size, size);
+    pixmap.fill(Qt::transparent);
+    QPainter p(&pixmap);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setBrush(QColor(0xdc, 0x26, 0x26));
+    p.setPen(Qt::NoPen);
+    p.drawEllipse(pixmap.rect());
+    p.setPen(Qt::white);
+    QFont font = p.font();
+    font.setBold(true);
+    font.setPixelSize(total < 10 ? 14 : total < 100 ? 11 : 9);
+    p.setFont(font);
+    const QString text = total > 99 ? QStringLiteral("99+") : QString::number(total);
+    p.drawText(pixmap.rect(), Qt::AlignCenter, text);
+    p.end();
+
+    m_trayIcon->setOverlayIconByPixmap(QIcon(pixmap));
+    m_trayIcon->setStatus(KStatusNotifierItem::NeedsAttention);
+    m_trayIcon->setToolTipSubTitle(i18np("%1 unread message", "%1 unread messages", total));
 }
 
 void MainWindow::renameTab(int index)
