@@ -35,30 +35,23 @@ MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
 {
     m_tabs = new QTabWidget(this);
-    m_tabs->setTabsClosable(true);
+    m_tabs->setTabsClosable(false);
     m_tabs->setMovable(true);
-    m_tabs->setDocumentMode(true);
     m_tabs->tabBar()->setExpanding(false);
+    m_tabs->tabBar()->setDrawBase(false);
     m_tabs->setStyleSheet(QStringLiteral(
-        "QTabWidget::pane {"
-        "  margin-top: 6px;"
-        "  border: 1px solid palette(mid);"
-        "  border-radius: 4px;"
-        "}"
-        "QTabBar { qproperty-drawBase: 0; }"
         "QTabBar::tab {"
         "  padding: 4px 12px;"
-        "  margin: 0 2px;"
-        "  border: 1px solid palette(mid);"
-        "  border-radius: 4px;"
+        "  margin: 2px 2px 6px 2px;"
+        "  border: none;"
+        "  border-radius: 10px;"
+        "  background: transparent;"
+        "  color: palette(text);"
+        "}"
+        "QTabBar::tab:hover { background: palette(midlight); }"
+        "QTabBar::tab:selected {"
         "  background: palette(button);"
         "  color: palette(button-text);"
-        "}"
-        "QTabBar::tab:hover { background: palette(light); }"
-        "QTabBar::tab:selected {"
-        "  background: palette(highlight);"
-        "  color: palette(highlighted-text);"
-        "  border-color: palette(highlight);"
         "}"
     ));
     m_tabs->tabBar()->installEventFilter(this);
@@ -76,21 +69,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *container = new QWidget(this);
     auto *layout = new QVBoxLayout(container);
-    layout->setContentsMargins(4, 4, 4, 4);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_tabs);
     setCentralWidget(container);
-
-    connect(m_tabs, &QTabWidget::tabCloseRequested, this, [this](int index) {
-        if (m_tabs->count() <= 1)
-            return;
-        auto *w = m_tabs->widget(index);
-        m_tabs->removeTab(index);
-        delete w;
-        saveAccountCount();
-        saveTabOrder();
-        updateTrayBadge();
-    });
 
     connect(m_tabs->tabBar(), &QTabBar::tabMoved, this, [this]() {
         saveTabOrder();
@@ -106,9 +88,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupActions();
     setupTrayIcon();
-    setupGUI(ToolBar | Keys | Save | Create, QStringLiteral("kwhatstuxui.rc"));
-    if (!menuBar()->isVisible())
-        setProperty("_breeze_no_separator", true);
+    setupGUI(Keys | Save | Create, QStringLiteral("kwhatstuxui.rc"));
+    menuBar()->hide();
+    setProperty("_breeze_no_separator", true);
     resize(1024, 768);
 }
 
@@ -128,6 +110,7 @@ QWebEngineView *MainWindow::addAccount()
 
     auto *webView = new QWebEngineView(profile, this);
     webView->setProperty("accountNumber", m_accountCounter);
+    webView->setContextMenuPolicy(Qt::NoContextMenu);
 
     QWebEngineScript script;
     script.setSourceCode(QStringLiteral(
@@ -162,11 +145,6 @@ QWebEngineView *MainWindow::addAccount()
 void MainWindow::setupActions()
 {
     KStandardAction::quit(qApp, &QCoreApplication::quit, actionCollection());
-    KStandardAction::showMenubar(this, [this](bool visible) {
-        menuBar()->setVisible(visible);
-        menuBar()->setMaximumHeight(visible ? QWIDGETSIZE_MAX : 0);
-        setProperty("_breeze_no_separator", !visible);
-    }, actionCollection());
 
     auto *reload = new QAction(QIcon::fromTheme(QStringLiteral("view-refresh")),
                                i18n("&Reload"), this);

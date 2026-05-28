@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE gui SYSTEM "kpartgui.dtd">
-<gui name="kwhatstux" version="2">
-  <MenuBar>
-    <Menu name="file">
-      <Action name="new_account"/>
-      <Action name="reload"/>
-    </Menu>
-  </MenuBar>
+<gui name="kwhatstux" version="3">
 </gui>
