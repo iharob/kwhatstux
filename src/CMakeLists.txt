@@ -1,7 +1,10 @@
+qt_add_resources(ICON_RESOURCES ../icons/icons.qrc)
+
 add_executable(kwhatstux
     main.cpp
     mainwindow.cpp
     mainwindow.h
+    ${ICON_RESOURCES}
 )
 
 target_link_libraries(kwhatstux PRIVATE

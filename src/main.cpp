@@ -24,7 +24,10 @@ int main(int argc, char *argv[])
     aboutData.setDesktopFileName(QStringLiteral("org.kde.kwhatstux"));
 
     KAboutData::setApplicationData(aboutData);
-    QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("kwhatstux")));
+    auto icon = QIcon::fromTheme(QStringLiteral("kwhatstux"));
+    if (icon.isNull())
+        icon = QIcon(QStringLiteral(":/icons/kwhatstux.svg"));
+    QApplication::setWindowIcon(icon);
 
     KCrash::initialize();
 

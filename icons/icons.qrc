@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="kwhatstux.svg">sc-apps-kwhatstux.svg</file>
+    </qresource>
+</RCC>
