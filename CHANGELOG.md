@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/iharob/kwhatstux/compare/v1.1.0...v1.2.0) (2026-05-28)
+
+
+### Features
+
+* persistent notifications and tray unread badge ([17b61c0](https://github.com/iharob/kwhatstux/commit/17b61c0e03e6003357c3b80cf5a7285d3afc9b14))
+
 ## [1.1.0](https://github.com/iharob/kwhatstux/compare/v1.0.0...v1.1.0) (2026-05-28)
 
 
