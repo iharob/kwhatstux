@@ -16,6 +16,7 @@
 #include <QWebEngineProfile>
 #include <QWebEngineScript>
 #include <QWebEngineScriptCollection>
+#include <QWebEngineSettings>
 #include <QWebEngineView>
 
 #include <KActionCollection>
@@ -103,6 +104,7 @@ QWebEngineView *MainWindow::addAccount()
     profile->setNotificationPresenter([this](std::unique_ptr<QWebEngineNotification> n) {
         handleNotification(std::move(n));
     });
+    profile->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
 
     auto *webView = new QWebEngineView(profile, this);
     webView->setProperty("accountNumber", m_accountCounter);
@@ -231,19 +233,16 @@ void MainWindow::updateTabTitle(int index, const QString &title)
     QString customName = config.readEntry(QStringLiteral("name-%1").arg(num), QString());
     QString label = customName.isEmpty() ? i18n("Account %1", num) : customName;
 
-    int unread = 0;
+    bool hasUnread = false;
     if (title.startsWith(QLatin1Char('('))) {
         int close = title.indexOf(QLatin1Char(')'));
-        if (close > 0) {
-            bool ok = false;
-            int n = title.mid(1, close - 1).toInt(&ok);
-            if (ok)
-                unread = n;
-            label = title.left(close + 1) + QLatin1Char(' ') + label;
-        }
+        if (close > 0)
+            hasUnread = true;
     }
+    if (hasUnread)
+        label = QStringLiteral("* ") + label;
 
-    widget->setProperty("unreadCount", unread);
+    widget->setProperty("hasUnread", hasUnread);
     m_tabs->setTabText(index, label);
     updateTrayBadge();
 }
@@ -253,37 +252,42 @@ void MainWindow::updateTrayBadge()
     if (!m_trayIcon)
         return;
 
-    int total = 0;
-    for (int i = 0; i < m_tabs->count(); ++i)
-        total += m_tabs->widget(i)->property("unreadCount").toInt();
+    bool anyUnread = false;
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        if (m_tabs->widget(i)->property("hasUnread").toBool()) {
+            anyUnread = true;
+            break;
+        }
+    }
 
-    if (total == 0) {
-        m_trayIcon->setOverlayIconByName(QString());
-        m_trayIcon->setStatus(KStatusNotifierItem::Active);
+    const QString baseIconName = QIcon::hasThemeIcon(QStringLiteral("kwhatstux-tray"))
+        ? QStringLiteral("kwhatstux-tray")
+        : QStringLiteral("kwhatstux");
+
+    if (!anyUnread) {
+        m_trayIcon->setIconByName(baseIconName);
         m_trayIcon->setToolTipSubTitle(i18n("WhatsApp Web Client"));
         return;
     }
 
-    const int size = 22;
-    QPixmap pixmap(size, size);
-    pixmap.fill(Qt::transparent);
-    QPainter p(&pixmap);
+    const int size = 64;
+    QPixmap canvas = QIcon::fromTheme(baseIconName).pixmap(size, size);
+    if (canvas.isNull()) {
+        canvas = QPixmap(size, size);
+        canvas.fill(Qt::transparent);
+    }
+
+    QPainter p(&canvas);
     p.setRenderHint(QPainter::Antialiasing);
+    const int dotSize = static_cast<int>(size * 0.38);
+    const QRectF dotRect(size - dotSize, size - dotSize, dotSize, dotSize);
     p.setBrush(QColor(0xdc, 0x26, 0x26));
     p.setPen(Qt::NoPen);
-    p.drawEllipse(pixmap.rect());
-    p.setPen(Qt::white);
-    QFont font = p.font();
-    font.setBold(true);
-    font.setPixelSize(total < 10 ? 14 : total < 100 ? 11 : 9);
-    p.setFont(font);
-    const QString text = total > 99 ? QStringLiteral("99+") : QString::number(total);
-    p.drawText(pixmap.rect(), Qt::AlignCenter, text);
+    p.drawEllipse(dotRect);
     p.end();
 
-    m_trayIcon->setOverlayIconByPixmap(QIcon(pixmap));
-    m_trayIcon->setStatus(KStatusNotifierItem::NeedsAttention);
-    m_trayIcon->setToolTipSubTitle(i18np("%1 unread message", "%1 unread messages", total));
+    m_trayIcon->setIconByPixmap(QIcon(canvas));
+    m_trayIcon->setToolTipSubTitle(i18n("New messages"));
 }
 
 void MainWindow::renameTab(int index)
