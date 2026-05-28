@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupActions();
     setupTrayIcon();
-    setupGUI(Default, QStringLiteral("kwhatstuxui.rc"));
+    setupGUI(ToolBar | Keys | Save | Create, QStringLiteral("kwhatstuxui.rc"));
     if (!menuBar()->isVisible())
         setProperty("_breeze_no_separator", true);
     resize(1024, 768);
