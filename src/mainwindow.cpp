@@ -37,9 +37,29 @@ MainWindow::MainWindow(QWidget *parent)
     m_tabs = new QTabWidget(this);
     m_tabs->setTabsClosable(true);
     m_tabs->setMovable(true);
+    m_tabs->setDocumentMode(true);
+    m_tabs->tabBar()->setExpanding(false);
     m_tabs->setStyleSheet(QStringLiteral(
-        "QTabWidget::tab-bar { alignment: center; }"
-        "QTabBar::tab:!selected { background: palette(window); }"
+        "QTabWidget::pane {"
+        "  margin-top: 6px;"
+        "  border: 1px solid palette(mid);"
+        "  border-radius: 4px;"
+        "}"
+        "QTabBar { qproperty-drawBase: 0; }"
+        "QTabBar::tab {"
+        "  padding: 4px 12px;"
+        "  margin: 0 2px;"
+        "  border: 1px solid palette(mid);"
+        "  border-radius: 4px;"
+        "  background: palette(button);"
+        "  color: palette(button-text);"
+        "}"
+        "QTabBar::tab:hover { background: palette(light); }"
+        "QTabBar::tab:selected {"
+        "  background: palette(highlight);"
+        "  color: palette(highlighted-text);"
+        "  border-color: palette(highlight);"
+        "}"
     ));
     m_tabs->tabBar()->installEventFilter(this);
 
@@ -56,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *container = new QWidget(this);
     auto *layout = new QVBoxLayout(container);
-    layout->setContentsMargins(0, 4, 0, 0);
+    layout->setContentsMargins(4, 4, 4, 4);
     layout->setSpacing(0);
     layout->addWidget(m_tabs);
     setCentralWidget(container);
@@ -202,7 +222,7 @@ void MainWindow::handleNotification(std::unique_ptr<QWebEngineNotification> webN
     std::shared_ptr<QWebEngineNotification> notification(webNotification.release());
 
     auto *knotify = new KNotification(QStringLiteral("webNotification"),
-                                       KNotification::Persistent, this);
+                                       KNotification::CloseOnTimeout, this);
     knotify->setTitle(notification->title().toHtmlEscaped());
     knotify->setText(notification->message().toHtmlEscaped());
 
