@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(kwhatstux VERSION 1.0.0 LANGUAGES CXX) # x-release-please-version
+project(kwhatstux VERSION 1.1.0 LANGUAGES CXX) # x-release-please-version
 
 set(QT_MIN_VERSION "6.6.0")
 set(KF_MIN_VERSION "6.0.0")
