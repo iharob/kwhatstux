@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/iharob/kwhatstux/compare/v1.2.2...v1.3.0) (2026-05-28)
+
+
+### Features
+
+* refine pill tabs, hide menu/context-menu, lock tabs ([#6](https://github.com/iharob/kwhatstux/issues/6)) ([6987f9a](https://github.com/iharob/kwhatstux/commit/6987f9a253e1f2a43de503e99f431e34e68ba90d))
+
 ## [1.2.2](https://github.com/iharob/kwhatstux/compare/v1.2.1...v1.2.2) (2026-05-28)
 
 
