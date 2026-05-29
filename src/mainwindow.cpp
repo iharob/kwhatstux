@@ -1,10 +1,16 @@
 #include "mainwindow.h"
 
+#include <QAction>
 #include <QCloseEvent>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QIcon>
 #include <QInputDialog>
+#include <QMenu>
 #include <QMenuBar>
 #include <QMouseEvent>
+#include <QStandardPaths>
 #include <QPainter>
 #include <QTabBar>
 #include <QTabWidget>
@@ -171,6 +177,13 @@ void MainWindow::setupTrayIcon()
     else
         m_trayIcon->setIconByName(QStringLiteral("kwhatstux"));
     m_trayIcon->setStandardActionsEnabled(true);
+
+    auto *autostart = new QAction(i18n("Start automatically at login"), this);
+    autostart->setCheckable(true);
+    autostart->setChecked(isAutostartEnabled());
+    connect(autostart, &QAction::toggled, this, &MainWindow::setAutostartEnabled);
+    m_trayIcon->contextMenu()->addAction(autostart);
+
     m_trayIcon->setToolTipTitle(i18n("KWhatsTux"));
     m_trayIcon->setToolTipSubTitle(i18n("WhatsApp Web Client"));
 
@@ -183,6 +196,46 @@ void MainWindow::setupTrayIcon()
             activateWindow();
         }
     });
+}
+
+static QString autostartDesktopPath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
+        + QStringLiteral("/autostart/org.kde.kwhatstux.desktop");
+}
+
+bool MainWindow::isAutostartEnabled() const
+{
+    return QFile::exists(autostartDesktopPath());
+}
+
+void MainWindow::setAutostartEnabled(bool enabled)
+{
+    const QString path = autostartDesktopPath();
+    QFile::remove(path);
+    if (!enabled)
+        return;
+
+    QDir().mkpath(QFileInfo(path).absolutePath());
+
+    const QString installed = QStandardPaths::locate(
+        QStandardPaths::ApplicationsLocation, QStringLiteral("org.kde.kwhatstux.desktop"));
+    if (!installed.isEmpty()) {
+        QFile::copy(installed, path);
+        return;
+    }
+
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        file.write(
+            "[Desktop Entry]\n"
+            "Type=Application\n"
+            "Name=KWhatsTux\n"
+            "Exec=kwhatstux\n"
+            "Icon=kwhatstux\n"
+            "Terminal=false\n"
+            "X-GNOME-Autostart-enabled=true\n");
+    }
 }
 
 void MainWindow::handlePermission(QWebEnginePermission permission)

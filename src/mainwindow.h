@@ -28,6 +28,8 @@ private:
     QWebEngineView *addAccount();
     void setupActions();
     void setupTrayIcon();
+    bool isAutostartEnabled() const;
+    void setAutostartEnabled(bool enabled);
     void handlePermission(QWebEnginePermission permission);
     void handleNotification(std::unique_ptr<QWebEngineNotification> notification);
     void updateTabTitle(int index, const QString &title);
