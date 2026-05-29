@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/iharob/kwhatstux/compare/v1.4.0...v1.5.0) (2026-05-29)
+
+
+### Features
+
+* start hidden in the tray when launched via autostart ([e645931](https://github.com/iharob/kwhatstux/commit/e645931920ddd8bb5e742024ee5604509ea31e40))
+
 ## [1.4.0](https://github.com/iharob/kwhatstux/compare/v1.3.0...v1.4.0) (2026-05-29)
 
 
