@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/iharob/kwhatstux/compare/v1.3.0...v1.4.0) (2026-05-29)
+
+
+### Features
+
+* add autostart toggle to tray menu ([3c3c552](https://github.com/iharob/kwhatstux/commit/3c3c552dca43af773c2cb86af543f759733338bb))
+
 ## [1.3.0](https://github.com/iharob/kwhatstux/compare/v1.2.2...v1.3.0) (2026-05-28)
 
 
