@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/iharob/kwhatstux/compare/v1.5.0...v1.6.0) (2026-05-30)
+
+
+### Features
+
+* open chat links in the external browser ([f909e0c](https://github.com/iharob/kwhatstux/commit/f909e0c6cd6d706a84f9938f102d5c9d8cf8e53c))
+
 ## [1.5.0](https://github.com/iharob/kwhatstux/compare/v1.4.0...v1.5.0) (2026-05-29)
 
 
