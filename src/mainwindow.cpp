@@ -2,6 +2,7 @@
 
 #include <QAction>
 #include <QCloseEvent>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -18,6 +19,7 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QWebEngineNewWindowRequest>
 #include <QWebEngineNotification>
 #include <QWebEnginePermission>
 #include <QWebEngineProfile>
@@ -134,6 +136,16 @@ QWebEngineView *MainWindow::addAccount()
 
     connect(webView->page(), &QWebEnginePage::permissionRequested,
             this, &MainWindow::handlePermission);
+
+    // Links sent in chats are rendered as target="_blank" anchors, which raise a
+    // new-window request instead of navigating in place. Open them in the user's
+    // default browser rather than swallowing the click.
+    connect(webView->page(), &QWebEnginePage::newWindowRequested,
+            this, [](QWebEngineNewWindowRequest &request) {
+        const QUrl url = request.requestedUrl();
+        if (url.isValid() && !url.isEmpty())
+            QDesktopServices::openUrl(url);
+    });
 
     connect(webView, &QWebEngineView::titleChanged, this, [this, webView](const QString &title) {
         int idx = m_tabs->indexOf(webView);
